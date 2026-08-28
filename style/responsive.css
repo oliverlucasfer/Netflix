@@ -1,19 +1,61 @@
 @media screen and (max-width: 700px) {
-  header .container {
-    display: flex;
+  .header-inner {
     flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
   }
 
-  .botao {
-    margin-top: 5px;
-    width: 190px;
-    height: 60px;
+  .main-nav {
+    width: 100%;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .main-nav::-webkit-scrollbar {
+    display: none;
+  }
+
+  .hero {
+    min-height: 72vh;
+  }
+
+  .hero-content {
+    padding-bottom: 56px;
+  }
+
+  .btn {
+    flex: 1 1 auto;
+    justify-content: center;
+  }
+
+  .carousel-arrow {
+    display: none;
+  }
+
+  .rows {
+    margin-top: 0;
+  }
+
+  .modal {
+    padding: 10px;
+  }
+
+  .modal-body {
+    padding: 0 18px 24px;
+    margin-top: -36px;
   }
 }
 
-@media screen and (min-width: 1000px){
-  .descricao {
-    width: 50%;
-    text-justify: auto;
+@media screen and (max-width: 380px) {
+  :root {
+    --gutter: 16px;
+  }
+
+  .btn {
+    padding: 11px 16px;
+    font-size: 0.9375rem;
+  }
+
+  .card {
+    width: 46vw;
   }
 }

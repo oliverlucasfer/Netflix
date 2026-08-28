@@ -1,0 +1,9 @@
+# Chave da API do TMDB (não versionar)
+js/config.js
+
+# Artefatos de teste (Playwright)
+.playwright-mcp/
+
+# Sistema
+.DS_Store
+Thumbs.db

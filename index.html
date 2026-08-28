@@ -1,88 +1,95 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="./style/main.css" />
-    <link rel="stylesheet" href="/style/responsive.css">
-    <link rel="stylesheet" href="style/owl/owl.carousel.min.css" />
-    <link rel="stylesheet" href="style/owl/owl.theme.default.min.css" />
-    <title>NETFLIX</title>
+    <meta
+      name="description"
+      content="Clone moderno da Netflix em HTML/CSS/JS puro, com dados dinâmicos da API TMDB."
+    />
+    <meta name="theme-color" content="#0f0f10" />
+    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+    <title>Netflix — Clone Moderno</title>
+    <link rel="preconnect" href="https://image.tmdb.org" />
+    <link rel="stylesheet" href="style/main.css" />
+    <link rel="stylesheet" href="style/carousel.css" />
+    <link rel="stylesheet" href="style/modal.css" />
+    <link rel="stylesheet" href="style/responsive.css" />
   </head>
   <body>
-    <header>
-      <div class="container">
-        <h2 class="logo">NETFLIX</h2>
-        <nav>
-          <a href="">Início</a>
-          <a href="">Séries</a>
-          <a href="">Filmes</a>
-          <a href="">Documentários</a>
+    <a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
+
+    <header class="site-header">
+      <div class="container header-inner">
+        <a href="./" class="logo" aria-label="Netflix — página inicial">NETFLIX</a>
+        <nav class="main-nav" aria-label="Navegação principal">
+          <a class="nav-link is-active" href="#hero">Início</a>
+          <a class="nav-link" href="#row-series">Séries</a>
+          <a class="nav-link" href="#row-filmes">Filmes</a>
+          <a class="nav-link" href="#row-documentarios">Documentários</a>
         </nav>
       </div>
     </header>
-    <main>
-      <div class="filme-principal">
-        <div class="container">
-          <h3 class="titulo">HOUSE OF CARDS</h3>
-          <p class="descricao">
-            Um político inescrupuloso não mede esforços para conquistar o poder
-            nos EUA neste drama vencedor do Emmy e do Globo de Ouro.
-          </p>
-          <div class="botoes">
-            <button role="button" class="botao">
-              <i class="fas fa-play"></i>
-              ASSISTIR AGORA
-            </button>
-            <button role="button" class="botao">
-              <i class="fas fa-info-circle"></i>
-              MAIS INFORMAÇÕES
-            </button>
+
+    <main id="conteudo">
+      <section class="hero" id="hero" aria-labelledby="hero-title">
+        <div class="hero-bg" id="hero-bg" hidden></div>
+        <div class="hero-overlay"></div>
+        <div class="container hero-content">
+          <div class="hero-text">
+            <span class="hero-badge">Em destaque</span>
+            <h1 class="hero-title" id="hero-title">Carregando…</h1>
+            <p class="hero-desc" id="hero-desc"></p>
+            <p class="hero-meta" id="hero-meta"></p>
+            <div class="hero-actions">
+              <button class="btn btn-primary" id="hero-play">
+                <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M8 5v14l11-7z" />
+                </svg>
+                Assistir
+              </button>
+              <button class="btn btn-secondary" id="hero-info">
+                <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M12 2a10 10 0 100 20 10 10 0 000-20zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z" />
+                </svg>
+                Mais informações
+              </button>
+            </div>
           </div>
         </div>
-      </div>
+      </section>
+
+      <div class="rows" id="rows"></div>
     </main>
-    <div class="carrosel-filmes">
-      <div class="owl-carousel owl-theme">
-        <div class="item">
-          <img class="box-filme" src="img/mini1.jpg" alt="the umbrella academy">
-        </div>
-        <div class="item">
-          <img class="box-filme" src="img/mini2.jpg" alt="the umbrella academy">
-        </div>
-        <div class="item">
-          <img class="box-filme" src="img/mini3.jpg" alt="the umbrella academy">
-        </div>
-        <div class="item">
-          <img class="box-filme" src="img/mini4.jpg" alt="the umbrella academy">
-        </div>
-        <div class="item">
-          <img class="box-filme" src="img/mini5.jpg" alt="the umbrella academy">
-        </div>
-        <div class="item">
-          <img class="box-filme" src="img/mini6.jpg" alt="the umbrella academy">
-        </div>
-        <div class="item">
-          <img class="box-filme" src="img/mini7.jpg" alt="the umbrella academy">
-        </div>
-        <div class="item">
-          <img class="box-filme" src="img/mini8.jpg" alt="the umbrella academy">
-        </div>
-        <div class="item">
-          <img class="box-filme" src="img/mini9.jpg" alt="the umbrella academy">
-        </div>
-        <div class="item">
-          <img class="box-filme" src="img/mini10.jpg" alt="the umbrella academy">
+
+    <div
+      class="modal"
+      id="modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="modal-title"
+      hidden
+    >
+      <div class="modal-card">
+        <button class="modal-close" data-modal="close" aria-label="Fechar">
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+            <path
+              d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"
+            />
+          </svg>
+        </button>
+        <div class="modal-backdrop" data-modal="backdrop" hidden></div>
+        <div class="modal-body">
+          <h2 class="modal-title" id="modal-title" data-modal="title"></h2>
+          <p class="modal-meta" data-modal="meta"></p>
+          <p class="modal-tagline" data-modal="tagline" hidden></p>
+          <p class="modal-desc" data-modal="desc"></p>
+          <div class="modal-chips" data-modal="chips"></div>
+          <p class="modal-runtime" data-modal="runtime"></p>
         </div>
       </div>
     </div>
-    <script
-      src="https://kit.fontawesome.com/bbfbd7f536.js"
-      crossorigin="anonymous"
-    ></script>
-    <script src="/js/owl/jquery.min.js"></script>
-    <script src="/js/owl/owl.carousel.min.js"></script>
-    <script src="/js/owl/setup.js"></script>
+
+    <script type="module" src="js/main.js"></script>
   </body>
 </html>
