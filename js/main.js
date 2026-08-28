@@ -2,7 +2,7 @@
  * Orquestração da página: fileiras dinâmicas, hero, navegação one-page
  * e integração com os módulos de API, carrossel e modal.
  */
-import { getList, getTopRated, getDetails, hasKey, imageUrl, POSTER_SIZE, BACKDROP_SIZE } from './api.js';
+import { getList, getTopRated, getDetails, imageUrl, POSTER_SIZE, BACKDROP_SIZE } from './api.js';
 import { createCarousel } from './carousel.js';
 import { createModal } from './modal.js';
 import { buildBadge } from './utils.js';
@@ -76,13 +76,12 @@ let apiKey = '';
 try {
   ({ TMDB_API_KEY: apiKey } = await import('./config.js'));
 } catch {
-  console.warn('config.js não encontrado — usando imagens locais.');
+  // Sem config.js: produção usa o proxy /api/tmdb; dev sem função usa fallback local.
 }
 
+// Com chave local as chamadas vão direto ao TMDB; sem chave, pelo proxy serverless.
 const modal = createModal(document.getElementById('modal'), {
-  loadDetails: hasKey(apiKey)
-    ? (item) => getDetails(apiKey, item.id, item.type)
-    : null,
+  loadDetails: (item) => getDetails(apiKey, item.id, item.type),
 });
 
 let currentHero = null;
@@ -166,34 +165,33 @@ async function fetchRow(row) {
 async function loadAll() {
   rows.forEach((row) => row.carousel.renderSkeletons());
 
-  if (hasKey(apiKey)) {
-    const settled = await Promise.allSettled(rows.map((row) => fetchRow(row)));
-    let heroDone = false;
-    let anySuccess = false;
+  // Com chave local ou via proxy: qualquer falha cai no fallback por fileira.
+  const settled = await Promise.allSettled(rows.map((row) => fetchRow(row)));
+  let heroDone = false;
+  let anySuccess = false;
 
-    settled.forEach((result, i) => {
-      const row = rows[i];
-      if (result.status === 'fulfilled' && result.value.length) {
-        anySuccess = true;
-        row.carousel.render(result.value);
-        if (row.isHeroSource && !heroDone) {
-          renderHero(result.value[0]);
-          heroDone = true;
-        }
-      } else {
-        if (result.status === 'rejected') {
-          console.warn(`Fileira "${row.title}" falhou, usando fallback.`, result.reason);
-        }
-        row.carousel.render(getFallbackItems());
+  settled.forEach((result, i) => {
+    const row = rows[i];
+    if (result.status === 'fulfilled' && result.value.length) {
+      anySuccess = true;
+      row.carousel.render(result.value);
+      if (row.isHeroSource && !heroDone) {
+        renderHero(result.value[0]);
+        heroDone = true;
       }
-    });
-
-    if (anySuccess) {
-      if (!heroDone) renderHero(heroFallback);
-      return;
+    } else {
+      if (result.status === 'rejected') {
+        console.warn(`Fileira "${row.title}" falhou, usando fallback.`, result.reason);
+      }
+      row.carousel.render(getFallbackItems());
     }
-    console.warn('Todas as buscas TMDB falharam — usando fallback local.');
+  });
+
+  if (anySuccess) {
+    if (!heroDone) renderHero(heroFallback);
+    return;
   }
+  console.warn('Todas as buscas falharam — usando fallback local.');
   rows.forEach((row) => row.carousel.render(getFallbackItems()));
   renderHero(heroFallback);
 }

@@ -68,7 +68,24 @@ locais em `img/`.
 
 > `js/config.js` está no `.gitignore` e **não deve ser versionado**. Note que
 > chaves TMDB v3 em apps client-side ficam visíveis nas requisições — para um
-> produto real, use um proxy backend.
+> produto real, use o proxy descrito abaixo.
+
+## Produção (Vercel) — proxy serverless
+
+Em produção a chave **nunca vai para o navegador**: as chamadas passam pela
+Vercel Function `api/tmdb.js`, que injeta a chave server-side. Sem
+`js/config.js`, o front usa `/api/tmdb` automaticamente (modo duplo em
+`js/api.js`: com chave local → direto no TMDB; sem → proxy).
+
+Setup:
+
+1. Importe o repo na Vercel (deploy estático automático + `api/` como functions)
+2. **Settings → Environment Variables** → crie `TMDB_API_KEY` com sua chave
+   (habilitar em *Production* e *Preview*)
+3. **Redeploy** (a env var só entra no próximo deploy)
+
+A função aceita apenas os endpoints usados pelo app (whitelist de paths),
+somente GET, e responde com cache de edge (`s-maxage=3600`).
 
 ## Decisões técnicas
 

@@ -1,9 +1,12 @@
 /**
- * Camada de acesso à API do TMDB.
+ * Camada de acesso ao TMDB com modo duplo:
+ *  - com chave local (js/config.js) → chamadas diretas (dev);
+ *  - sem chave → proxy serverless /api/tmdb (produção, chave fica no servidor).
  * Todas as respostas passam por normalize() para um formato estável.
  */
 
 const API_BASE = 'https://api.themoviedb.org/3';
+const PROXY_URL = '/api/tmdb';
 const IMG_BASE = 'https://image.tmdb.org/t/p/';
 const LANGUAGE = 'pt-BR';
 const REQUEST_TIMEOUT = 8000;
@@ -12,7 +15,7 @@ const KEY_SENTINEL = 'COLE_SUA_CHAVE_AQUI';
 export const POSTER_SIZE = 'w342';
 export const BACKDROP_SIZE = 'w1280';
 
-/** true quando há uma chave TMDB configurada (e não o placeholder). */
+/** true quando há uma chave TMDB local configurada (e não o placeholder). */
 export function hasKey(key) {
   return Boolean(key && key !== KEY_SENTINEL);
 }
@@ -43,11 +46,15 @@ async function fetchJson(url) {
   return res.json();
 }
 
-/** Constrói a URL da API de forma segura (sem concatenação manual de query). */
-function buildUrl(path, key, params = {}) {
-  const url = new URL(`${API_BASE}/${path}`);
-  url.search = new URLSearchParams({ api_key: key, language: LANGUAGE, ...params });
-  return url;
+/** Com chave local vai direto ao TMDB; sem chave, pelo proxy serverless. */
+function request(path, key, params = {}) {
+  if (hasKey(key)) {
+    const url = new URL(`${API_BASE}/${path}`);
+    url.search = new URLSearchParams({ api_key: key, language: LANGUAGE, ...params });
+    return fetchJson(url);
+  }
+  const search = new URLSearchParams({ path, ...params });
+  return fetchJson(`${PROXY_URL}?${search}`);
 }
 
 const ENDPOINTS = {
@@ -69,14 +76,14 @@ export async function getList(key, kind) {
     params.sort_by = 'popularity.desc';
   }
 
-  const data = await fetchJson(buildUrl(path, key, params));
+  const data = await request(path, key, params);
   const fixedType = kind === 'trending' ? null : kind === 'trending-tv' ? 'tv' : 'movie';
   return (data.results || []).map((item) => normalize(item, fixedType));
 }
 
 /** Top rated: mescla filmes e séries ordenados por nota. */
 export async function getTopRated(key) {
-  const fetchKind = (kind) => fetchJson(buildUrl(`${kind}/top_rated`, key, { page: '1' }));
+  const fetchKind = (kind) => request(`${kind}/top_rated`, key, { page: '1' });
   const [movies, shows] = await Promise.all([fetchKind('movie'), fetchKind('tv')]);
 
   return [
@@ -87,7 +94,7 @@ export async function getTopRated(key) {
 
 /** Detalhes completos de um título (tagline, gêneros, duração/temporadas). */
 export async function getDetails(key, id, type) {
-  const data = await fetchJson(buildUrl(`${type}/${id}`, key));
+  const data = await request(`${type}/${id}`, key);
   return {
     ...normalize(data, type),
     tagline: data.tagline || '',
